@@ -25,6 +25,11 @@ Crystallographica Section B Structural Crystallography and Crystal Chemistry
 *Introduces the a(+)b(+)c(-) perovskite tilt classifcation, identifies 23
 different possibilities to produce 'intermeshing gears' with a repeat of 2*
 
+Glazer, A. M. “Simple Ways of Determining Perovskite Structures.” Acta
+Crystallographica Section A 31, no. 6 (November 1, 1975): 756–62.
+[ http://dx.doi.org/10.1107/S0567739475001635 ]
+*Simple geometric method described by Glazer to define the tilt class*
+
 Woodward, P. M. “Octahedral Tilting in Perovskites. I. Geometrical
 Considerations.” Acta Crystallographica Section B Structural Science 53, no.
 1 (February 1, 1997): 32–43. 
