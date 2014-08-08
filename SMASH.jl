@@ -6,18 +6,18 @@
 
 # Print titles...
 
-SMASH={ {"System","Systematic","Sub","Simulated","Standard"},
-    {"Method","Mash","Metrication"},
-    {"Analysis","Analytic","Ability"},
-    {"Subtype","Suitable",},
-    {"Holonomy","Homeotype"}}
-TILT={"+","-","0"}
+SMASH={ {"System","Systematic","Sub","Simulated","Standard","Symbiotic"},
+        {"Method","Mash","Martian","Metrication","Molecular","Mutual"},
+        {"Analysis","Analytic","Ability","And","Atomic"},
+        {"Subtype","Suitable","Sublime","Subtle"},
+        {"Holonomy","Homeotype","Hypothetic"}}
+TILT=   {"(+)","(-)","(0)"}
 
 println("Reconstituting the Glazer tilt notation for Perovskites from sampling molecular dynamics")
 print("S*M*A*S*H: ") 
-for i in SMASH
-    word=i[1+rand(Uint32)%length(i)]
-    print(word," ",TILT[1+rand(Uint32)%length(TILT)]," ")
+for WORDS in SMASH
+    print(  WORDS[1+rand(Uint32)%length(WORDS)]," ",
+            TILT[1+rand(Uint32)%length(TILT)]," ")
 end
 println()
 
