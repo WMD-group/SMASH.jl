@@ -13,7 +13,7 @@ set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old
 function print_titles()
     SMASH={ {"System","Systematic","Sub","Simulated","Standard","Symbiotic"},
             {"Method","Mash","Martian","Metrication","Molecular","Mutual"},
-            {"Analysis","Analytic","Ability","And","Atomic"},
+            {"Analysis","Analytic","Ability","And","Atomic","Aristotype"},
             {"Subtype","Suitable","Sublime","Subtle"},
             {"Holonomy","Homeotype","Hypothetic"}}
     TILT=   {"(+)","(-)","(0)"}
@@ -22,7 +22,7 @@ function print_titles()
     print("S*M*A*S*H: ") 
     for WORDS in SMASH
         print(  WORDS[1+rand(Uint32)%length(WORDS)]," ",
-                TILT[1+rand(Uint32)%length(TILT)]," ")
+                 TILT[1+rand(Uint32)%length( TILT)]," " )
     end
     println()
 end
