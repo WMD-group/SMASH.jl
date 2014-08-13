@@ -15,10 +15,15 @@ atomic={"H", "He",
 "Hf","Ta","W","Re","Os","Ir","Pt", "Au", "Hg", "Tl", "Pb", "Bi","Po","At","Rn","Fr","Ra"}
 # indices are atomic number...
 
+# Print our (Atomic Number) table
+#for Z in 1:length(atomic)
+#    println(Z," ",atomic[Z])
+#end
+
 type Trajectory #NB: need to read moar on constructors...
-   cell={}
-   natoms= Int
-   frames={}
+   cell
+   natoms::Int
+   frames
 end
 
 function readnlines(f,n)
@@ -33,12 +38,12 @@ end
 #readmatrix(f, nlines) = readdlm(IOBuffer(string([readline(f) for i in 1:nlines])))
 readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 
-function read_XDATCAR(f::IOStream)
+function read_XDATCAR(f::IOStream, t::Trajectory)
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
     
-    cell=readdlm(IOBuffer(readnlines(f,3)))
-    println(cell)
+    t.cell=readdlm(IOBuffer(readnlines(f,3)))
+    println(t.cell)
 
 #    atomlookup=readdlm(IOBuffer(readnlines(f,2)))
     atomlookup=readmatrix(f,2)
@@ -51,24 +56,15 @@ function read_XDATCAR(f::IOStream)
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
     #print(frames)
 
-    frames={}
     nframe=0
     while !eof(f) 
         nframe=nframe+1
 
         stepsizeline=readline(f)
-        push!(frames,readmatrix(f,atoms))
+        push!(t.frames,readmatrix(f,atoms))
 #        print(frame)
     end
     println("read_XDATCAR: $nframe Green Bottles...")
-    println(frames[123])
 end
 
-# Test routines...
-f=open("testmd2-nonselective_XDATCAR","r")
-read_XDATCAR(f)
 
-# Print our (Atomic Number) table
-for Z in 1:length(atomic)
-    println(Z," ",atomic[Z])
-end

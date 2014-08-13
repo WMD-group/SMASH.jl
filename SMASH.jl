@@ -4,6 +4,8 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-07
 
+require("XDATCAR.jl") #XDATCAR reader...
+
 # Packages to pull in...
 using Gaston    # interface to plot using GnuPlot
                 # I would use the MatPlotlib hooks; but this actually works
@@ -46,6 +48,22 @@ end
 # MAIN
 print_titles()
 #plot_octahedra() #currently broken....
-plot(sin(-pi:0.01:pi))
+
+# Test routines...
+t=Trajectory({},0,{})
+f=open("testmd2-nonselective_XDATCAR","r")
+read_XDATCAR(f,t)
+
+println("OK; frames read...")
+println("Fractional coordinates; t.frames[123]")
+println(t.frames[123])
+
+println("Expanding to real coordinates; t.frames[123]*t.cell")
+println(t.frames[123]*t.cell)
+
+println("Dividing to fractional coordinates; t.frames[123]/t.cell")
+println(t.frames[123]/t.cell)
+
+plot(t.frames[123][:,1],t.frames[123][:,2])
 
 read(STDIN,Char) # wait for character before ending (and thus closing the GnuPlots)
