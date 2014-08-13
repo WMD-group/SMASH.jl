@@ -5,14 +5,14 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-12
 
-atomic={"H", "He", 
+atomic=["H", "He", 
 "Li", "Be", "B", "C", "N", "O", "F", "Ne", 
 "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", 
 "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", 
 "Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te","I", "Xe", 
 "Cs","Ba",
 "La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu",
-"Hf","Ta","W","Re","Os","Ir","Pt", "Au", "Hg", "Tl", "Pb", "Bi","Po","At","Rn","Fr","Ra"}
+"Hf","Ta","W","Re","Os","Ir","Pt", "Au", "Hg", "Tl", "Pb", "Bi","Po","At","Rn","Fr","Ra"]
 # indices are atomic number...
 
 # Print our (Atomic Number) table
@@ -24,6 +24,7 @@ type Trajectory #NB: need to read moar on constructors...
    cell
    natoms::Int
    frames
+   atomlookup
 end
 
 function readnlines(f,n)
@@ -48,20 +49,27 @@ function read_XDATCAR(f::IOStream, t::Trajectory)
 #    atomlookup=readdlm(IOBuffer(readnlines(f,2)))
     atomlookup=readmatrix(f,2)
 
-    println(atomlookup)
+#    println(atomlookup)
 
     atoms=int(sum(atomlookup[2,1:end])) #quite ugly; but works
+
+    for atomtype = 1:length(atomlookup[2,1:end]) # TODO: Finish writing this :^)
+        for i in 1:atomlookup[2,atomtype]
+            push!(t.atomlookup,int(indexin([atomlookup[1,atomtype]],atomic)))
+        end
+    end
+    print (t.atomlookup)
 
     println("$atoms atoms in XDATCAT frames")
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
     #print(frames)
-
+    
     nframe=0
     while !eof(f) 
         nframe=nframe+1
 
         stepsizeline=readline(f)
-        push!(t.frames,readmatrix(f,atoms))
+        push!(t.frames,readmatrix(f,atoms))   # Fractional coordinates!
 #        print(frame)
     end
     println("read_XDATCAR: $nframe Green Bottles...")

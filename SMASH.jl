@@ -50,7 +50,7 @@ print_titles()
 #plot_octahedra() #currently broken....
 
 # Test routines...
-t=Trajectory({},0,{})
+t=Trajectory({},0,{},{})
 f=open("testmd2-nonselective_XDATCAR","r")
 read_XDATCAR(f,t)
 
@@ -63,6 +63,15 @@ println(t.frames[123]*t.cell)
 
 println("Dividing to fractional coordinates; t.frames[123]/t.cell")
 println(t.frames[123]/t.cell)
+
+Pb={} # ToDo: This code doesn't work :) FIXME 
+for (i,v) in enumerate(t.frames[123][])
+    println(i,v)
+    if (t.atomlookup[i]==82)
+        push!(Pb,v)
+    end
+end
+plot(Pb[:,1],Pb[:,2])
 
 plot(t.frames[123][:,1],t.frames[123][:,2])
 
