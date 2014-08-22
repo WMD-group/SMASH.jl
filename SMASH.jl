@@ -65,7 +65,7 @@ println("Dividing to fractional coordinates; t.frames[123]/t.cell")
 println(t.frames[123]/t.cell)
 
 Pb={} # ToDo: This code doesn't work :) FIXME 
-for (i,v) in enumerate(t.frames[123][])
+for (i,v) in enumerate(t.frames[123][:,1])
     println(i,v)
     if (t.atomlookup[i]==82)
         push!(Pb,v)
