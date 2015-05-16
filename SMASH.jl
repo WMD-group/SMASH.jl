@@ -38,7 +38,7 @@ function plot_octahedra() #Doesn't work currently...
         Xa,Ya,Za=0.0,0.0,0.0
         Xb=i%3
         Yb=i%2
-        Yc=i
+        Zb=i
         gnuplot_send("set arrow $i from $Xa,$Ya,$Za to $Xb,$Yb,$Zb nohead") 
     end
     plot()
@@ -47,7 +47,7 @@ end
 
 # MAIN
 print_titles()
-#plot_octahedra() #currently broken....
+#plot_octahedra() #currently crashes out....
 
 # Test routines...
 t=Trajectory({},0,{},{})
@@ -71,7 +71,7 @@ for (i,v) in enumerate(t.frames[123][:,1])
         push!(Pb,v)
     end
 end
-plot(Pb[:,1],Pb[:,2])
+#plot(Pb[:,1],Pb[:,2])
 
 plot(t.frames[123][:,1],t.frames[123][:,2])
 
