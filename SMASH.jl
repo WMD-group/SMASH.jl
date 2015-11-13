@@ -4,12 +4,12 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-07
 
-require("XDATCAR.jl") #XDATCAR reader...
+include("XDATCAR.jl") #XDATCAR reader...
 
 # Packages to pull in...
-using Gaston    # interface to plot using GnuPlot
+#using Gaston    # interface to plot using GnuPlot
                 # I would use the MatPlotlib hooks; but this actually works
-set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
+#set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
 
 # Print titles...
 function print_titles()

@@ -58,7 +58,7 @@ function read_XDATCAR(f::IOStream, t::Trajectory)
             push!(t.atomlookup,int(indexin([atomlookup[1,atomtype]],atomic)))
         end
     end
-    print (t.atomlookup)
+    print(t.atomlookup)
 
     println("$atoms atoms in XDATCAT frames")
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
