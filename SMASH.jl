@@ -4,16 +4,14 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-07
 
-#include("XDATCAR.jl") #XDATCAR reader...
-push!(LOAD_PATH,"./")
+push!(LOAD_PATH,"./") # Temporary versions of modules in PWD
 using XDATCAR
 
 # Packages to pull in...
 #using Gaston    # interface to plot using GnuPlot
                 # I would use the MatPlotlib hooks; but this actually works
 #set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
-
-using Plots
+using Plots # Generic 'Plots' module can run PyPlot, etc. as backend
 
 # Print titles...
 function print_titles()
@@ -54,9 +52,8 @@ print_titles()
 #plot_octahedra() #currently crashes out....
 
 # Test routines...
-t=Trajectory([],0,[],[])
 f=open("testmd2-nonselective_XDATCAR","r")
-XDATCAR.read(f,t)
+t=XDATCAR.read(f) #Returns type XDATCAR.Trajcetory
 
 println("OK; frames read...")
 println("Fractional coordinates; t.frames[123]")

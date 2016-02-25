@@ -56,7 +56,9 @@ readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 #   0.43568603  0.50228894  0.53798652
 #   0.03842720  0.49679247  0.48113604
 
-function read(f::IOStream, t::Trajectory)
+function read(f::IOStream) 
+    t=Trajectory([],0,[],[]) 
+    
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
     
@@ -90,6 +92,8 @@ function read(f::IOStream, t::Trajectory)
 #        print(frame)
     end
     println("read_XDATCAR: $nframe Green Bottles...")
+
+    return t
 end
 
 end # Module
