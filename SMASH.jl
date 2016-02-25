@@ -47,7 +47,7 @@ end
 
 # MAIN
 print_titles()
-#plot_octahedra() #currently broken....
+#plot_octahedra() #currently crashes out....
 
 # Test routines...
 t=Trajectory([],0,[],[])
@@ -91,11 +91,11 @@ for a in v[:]
         push!(Pb,v)
     end
 end
+
 println(Pb)
 #plot(Pb[:,1],Pb[:,2])
 
 plot(t.frames[123][:,1],t.frames[123][:,2],"plotstyle","points")
 
 read(STDIN,Char) # wait for character before ending (and thus closing the GnuPlots)
-
 
