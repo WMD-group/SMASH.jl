@@ -28,6 +28,7 @@ type Trajectory #NB: need to read moar on constructors...
    cell
    natoms::Int
    frames
+   nframes::Int
    atomlookup::Array
 end
 
@@ -57,7 +58,7 @@ readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 #   0.03842720  0.49679247  0.48113604
 
 function read_XDATCAR(f::IOStream) 
-    t=Trajectory([],0,[],[]) 
+    t=Trajectory([],0,[],0,[]) 
     
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
@@ -80,19 +81,19 @@ function read_XDATCAR(f::IOStream)
     end
     print(t.atomlookup)
 
-    println("$atoms atoms in XDATCAT frames")
+    #println("$atoms atoms in XDATCAT frames")
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
     #print(frames)
     
-    nframe=0
+    t.nframes=0
     while !eof(f) 
-        nframe=nframe+1
+        t.nframes=t.nframes+1
 
         stepsizeline=readline(f)
         push!(t.frames,readmatrix(f,atoms))   # Fractional coordinates!
 #        print(frame)
     end
-    println("read_XDATCAR: $nframe Green Bottles...")
+    #println("read_XDATCAR: $f.nframes Green Bottles...")
 
     return t
 end
@@ -109,8 +110,8 @@ function print_titles()
     println("Reconstituting the Glazer tilt notation for Perovskites from sampling molecular dynamics")
     print("S*M*A*S*H: ")
     for WORDS in SMASH
-        print(  WORDS[1+rand(Uint32)%length(WORDS)]," ",
-                 TILT[1+rand(Uint32)%length( TILT)]," " )
+        print(  WORDS[1+rand(UInt32)%length(WORDS)]," ",
+                 TILT[1+rand(UInt32)%length( TILT)]," " )
     end
     println()
 end
