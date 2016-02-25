@@ -1,9 +1,13 @@
-# S*M*A*S*H
+# S*M*A*S*H - XDATCAR Reader
 # Reconstituting the Glazer tilt notation for Perovskites from sampling molecular dynamics.
 # VASP (electronic structure package) XDATCAR (ab-initio molecular dynamics file format) reader
 #
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-12
+
+module XDATCAR
+
+export atomic, Trajectory, read
 
 atomic=["H", "He", 
 "Li", "Be", "B", "C", "N", "O", "F", "Ne", 
@@ -52,7 +56,7 @@ readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 #   0.43568603  0.50228894  0.53798652
 #   0.03842720  0.49679247  0.48113604
 
-function read_XDATCAR(f::IOStream, t::Trajectory)
+function read(f::IOStream, t::Trajectory)
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
     
@@ -88,4 +92,4 @@ function read_XDATCAR(f::IOStream, t::Trajectory)
     println("read_XDATCAR: $nframe Green Bottles...")
 end
 
-
+end # Module

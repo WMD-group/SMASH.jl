@@ -4,12 +4,16 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-07
 
-include("XDATCAR.jl") #XDATCAR reader...
+#include("XDATCAR.jl") #XDATCAR reader...
+push!(LOAD_PATH,"./")
+using XDATCAR
 
 # Packages to pull in...
 #using Gaston    # interface to plot using GnuPlot
                 # I would use the MatPlotlib hooks; but this actually works
 #set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
+
+using Plots
 
 # Print titles...
 function print_titles()
@@ -52,7 +56,7 @@ print_titles()
 # Test routines...
 t=Trajectory([],0,[],[])
 f=open("testmd2-nonselective_XDATCAR","r")
-read_XDATCAR(f,t)
+XDATCAR.read(f,t)
 
 println("OK; frames read...")
 println("Fractional coordinates; t.frames[123]")
@@ -75,7 +79,7 @@ println(Pb)
 println("STATS")
 println(mean(Pb))
 
-plot(t.frames[123][:,1],t.frames[123][:,2],"plotstyle","linespoints")
+plot(t.frames[123][:,1],t.frames[123][:,2]) #,"plotstyle","linespoints")
 
 read(STDIN,Char) # wait for character before ending (and thus closing the GnuPlots)
 
