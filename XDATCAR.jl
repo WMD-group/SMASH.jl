@@ -70,7 +70,8 @@ function read(f::IOStream)
 
 #    println(atomlookup)
 
-    atoms=int(sum(atomcrossref[2,1:end])) #Total atoms in supercell; quite ugly; but works
+    atoms=Int(sum(atomcrossref[2,1:end])) #Total atoms in supercell; quite ugly; but works
+    t.natoms=atoms
 
     for atomtype = 1:length(atomcrossref[2,1:end]) # Each Atom... 
         for i in 1:atomcrossref[2,atomtype] # For i number of each atoms

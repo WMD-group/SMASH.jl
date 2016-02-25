@@ -51,6 +51,7 @@ end
 print_titles()
 #plot_octahedra() #currently crashes out....
 
+
 # Test routines...
 f=open("testmd2-nonselective_XDATCAR","r")
 t=XDATCAR.read(f) #Returns type XDATCAR.Trajcetory
