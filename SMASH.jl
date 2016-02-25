@@ -66,22 +66,20 @@ function read_XDATCAR(f::IOStream)
     t.cell=readdlm(IOBuffer(readnlines(f,3))) #Unit cell spec (3x3 matrix of basis vectors)
     println(t.cell)
 
-#    atomlookup=readdlm(IOBuffer(readnlines(f,2)))
     atomcrossref=readmatrix(f,2) # Ref to POTCAR; AtomName and #ofatoms
+#   C     N     H     Pb    I
+#   1     1     6     1     3
 
-#    println(atomlookup)
+    t.natoms=Int(sum(atomcrossref[2,1:end])) #Total atoms in supercell
 
-    atoms=Int(sum(atomcrossref[2,1:end])) #Total atoms in supercell; quite ugly; but works
-    t.natoms=atoms
-
-    for atomtype = 1:length(atomcrossref[2,1:end]) # Each Atom... 
-        for i in 1:atomcrossref[2,atomtype] # For i number of each atoms
-            push!(t.atomlookup,indexin([atomcrossref[1,atomtype]],atomic)[1])
+    for (count,specie) in zip((atomcrossref[2,1:end]),atomcrossref[1,1:end]) # Each Atom... 
+        for i=1:count # For i number of each atoms
+            push!(t.atomlookup,specie)
         end
     end
     print(t.atomlookup)
+    # --> "C","N","H","H,"H","H","H","H","Pb","I","I","I"
 
-    #println("$atoms atoms in XDATCAT frames")
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
     #print(frames)
     
@@ -90,10 +88,9 @@ function read_XDATCAR(f::IOStream)
         t.nframes=t.nframes+1
 
         stepsizeline=readline(f)
-        push!(t.frames,readmatrix(f,atoms))   # Fractional coordinates!
+        push!(t.frames,readmatrix(f,t.natoms))   # Fractional coordinates!
 #        print(frame)
     end
-    #println("read_XDATCAR: $f.nframes Green Bottles...")
 
     return t
 end
