@@ -4,21 +4,21 @@
 # Jarvist Moore Frost, University of Bath
 # File begun 2014-07-07
 
-require("XDATCAR.jl") #XDATCAR reader...
+include("XDATCAR.jl") #XDATCAR reader...
 
 # Packages to pull in...
-using Gaston    # interface to plot using GnuPlot
+#using Gaston    # interface to plot using GnuPlot
                 # I would use the MatPlotlib hooks; but this actually works
-set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
+#set_terminal("x11") # Rubbish installation on Jarv's Mac @ Work... - Keep it old school!
 
 # Print titles...
 function print_titles()
-    SMASH={ {"System","Systematic","Sub","Simulated","Standard","Symbiotic"},
-            {"Method","Mash","Martian","Metrication","Molecular","Mutual"},
-            {"Analysis","Analytic","Ability","And","Atomic","Aristotype"},
-            {"Subtype","Suitable","Sublime","Subtle"},
-            {"Holonomy","Homeotype","Hypothetic"}}
-    TILT=   {"(+)","(-)","(0)"}
+    SMASH=Any[ Any["System","Systematic","Sub","Simulated","Standard","Symbiotic"],
+            Any["Method","Mash","Martian","Metrication","Molecular","Mutual"],
+            Any["Analysis","Analytic","Ability","And","Atomic","Aristotype"],
+            Any["Subtype","Suitable","Sublime","Subtle"],
+            Any["Holonomy","Homeotype","Hypothetic"]]
+    TILT=   Any["(+)","(-)","(0)"]
 
     println("Reconstituting the Glazer tilt notation for Perovskites from sampling molecular dynamics")
     print("S*M*A*S*H: ") 
@@ -38,7 +38,7 @@ function plot_octahedra() #Doesn't work currently...
         Xa,Ya,Za=0.0,0.0,0.0
         Xb=i%3
         Yb=i%2
-        Yc=i
+        Zb=i
         gnuplot_send("set arrow $i from $Xa,$Ya,$Za to $Xb,$Yb,$Zb nohead") 
     end
     plot()
@@ -50,7 +50,7 @@ print_titles()
 #plot_octahedra() #currently broken....
 
 # Test routines...
-t=Trajectory({},0,{},{})
+t=Trajectory([],0,[],[])
 f=open("testmd2-nonselective_XDATCAR","r")
 read_XDATCAR(f,t)
 
@@ -64,15 +64,38 @@ println(t.frames[123]*t.cell)
 println("Dividing to fractional coordinates; t.frames[123]/t.cell")
 println(t.frames[123]/t.cell)
 
+SUPER=2
+
+Pb={}
+for i in 1:123
+    push!(Pb,mod((t.frames[i][65:72,:]*SUPER),1)*t.cell/SUPER)
+end
+println(Pb)
+
+println("STATS")
+println(mean(Pb))
+
+plot(t.frames[123][:,1],t.frames[123][:,2],"plotstyle","linespoints")
+
+read(STDIN,Char) # wait for character before ending (and thus closing the GnuPlots)
+
+end
+
+println("Pb Extractor...")
 Pb={} # ToDo: This code doesn't work :) FIXME 
-for (i,v) in enumerate(t.frames[123][:,1])
-    println(i,v)
-    if (t.atomlookup[i]==82)
+v=hcat(t.frames[123],t.atomlookup) # pastes coords with atom #
+
+for a in v[:]
+    println(v," ") #,t.atomlookup[indexin(v,t.frames[123])])
+    if (a[4]==82)
         push!(Pb,v)
     end
 end
-plot(Pb[:,1],Pb[:,2])
+println(Pb)
+#plot(Pb[:,1],Pb[:,2])
 
-plot(t.frames[123][:,1],t.frames[123][:,2])
+plot(t.frames[123][:,1],t.frames[123][:,2],"plotstyle","points")
 
 read(STDIN,Char) # wait for character before ending (and thus closing the GnuPlots)
+
+

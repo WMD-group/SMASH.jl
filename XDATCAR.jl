@@ -24,7 +24,7 @@ type Trajectory #NB: need to read moar on constructors...
    cell
    natoms::Int
    frames
-   atomlookup
+   atomlookup::Array
 end
 
 function readnlines(f,n)
@@ -39,26 +39,39 @@ end
 #readmatrix(f, nlines) = readdlm(IOBuffer(string([readline(f) for i in 1:nlines])))
 readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 
+# XDATCAR LOOKS LIKE THIS: 
+
+# Perovskite_MD
+#           1
+#    12.580170    0.000078   -0.039648
+#     0.000077   12.547782   -0.000152
+#    -0.039643   -0.000153   12.594017
+#   C    N    H    Pb   I
+#   8   8  48   8  24
+#Direct configuration=    50
+#   0.43568603  0.50228894  0.53798652
+#   0.03842720  0.49679247  0.48113604
+
 function read_XDATCAR(f::IOStream, t::Trajectory)
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
     
-    t.cell=readdlm(IOBuffer(readnlines(f,3)))
+    t.cell=readdlm(IOBuffer(readnlines(f,3))) #Unit cell spec (3x3 matrix of basis vectors)
     println(t.cell)
 
 #    atomlookup=readdlm(IOBuffer(readnlines(f,2)))
-    atomlookup=readmatrix(f,2)
+    atomcrossref=readmatrix(f,2) # Ref to POTCAR; AtomName and #ofatoms
 
 #    println(atomlookup)
 
-    atoms=int(sum(atomlookup[2,1:end])) #quite ugly; but works
+    atoms=int(sum(atomcrossref[2,1:end])) #Total atoms in supercell; quite ugly; but works
 
-    for atomtype = 1:length(atomlookup[2,1:end]) # TODO: Finish writing this :^)
-        for i in 1:atomlookup[2,atomtype]
-            push!(t.atomlookup,int(indexin([atomlookup[1,atomtype]],atomic)))
+    for atomtype = 1:length(atomcrossref[2,1:end]) # Each Atom... 
+        for i in 1:atomcrossref[2,atomtype] # For i number of each atoms
+            push!(t.atomlookup,indexin([atomcrossref[1,atomtype]],atomic)[1])
         end
     end
-    print (t.atomlookup)
+    print(t.atomlookup)
 
     println("$atoms atoms in XDATCAT frames")
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
