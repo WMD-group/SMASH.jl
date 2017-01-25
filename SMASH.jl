@@ -58,12 +58,17 @@ readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 #   0.03842720  0.49679247  0.48113604
 
 function read_XDATCAR(f::IOStream) 
+    println("Reading trajectory from ")
+    display(f)
+    println()
+
     t=Trajectory([],0,[],0,[]) 
     
     l=readline(f) #Title
     l=readline(f) #Always a '1' ?
     
     t.cell=readdlm(IOBuffer(readnlines(f,3))) #Unit cell spec (3x3 matrix of basis vectors)
+    println("Unitcell: ")
     println(t.cell)
 
     atomcrossref=readmatrix(f,2) # Ref to POTCAR; AtomName and #ofatoms
@@ -77,7 +82,7 @@ function read_XDATCAR(f::IOStream)
             push!(t.atomlookup,specie)
         end
     end
-    print(t.atomlookup)
+    println(t.atomlookup)
     # --> "C","N","H","H,"H","H","H","H","Pb","I","I","I"
 
     #frames=readdlm(f , dlm=(r"\r?\n?",r"Direct configuration=?"))
@@ -91,6 +96,8 @@ function read_XDATCAR(f::IOStream)
         push!(t.frames,readmatrix(f,t.natoms))   # Fractional coordinates!
 #        print(frame)
     end
+    
+    println("Trajectory read, containing ",t.nframes," frames")
 
     return t
 end
