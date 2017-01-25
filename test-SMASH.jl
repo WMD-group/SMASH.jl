@@ -15,8 +15,13 @@ function minimd(a, b, unitcell; verbose::Bool=false)
         display(unitcell)
     end
 
-    d=unitcell.*(b-a) # Nb: changed in Julia 0.5, need to be explicit about per-element broadcast (.)
-    d=d-round(d/unitcell)*unitcell
+    # Rewrote in a more sane order, via short note of W.Smith; and some googling
+    d=b-a # b and a are fractional
+    d=d-round(d) # Minimum image convention in fractional space
+    d=unitcell*d # Project back to real space; i.e. Angstrom
+    if verbose
+        display(d)
+    end
     d # returns in units of the unitcell; i.e. Angstrom
 end
 
@@ -30,18 +35,24 @@ function PbIdistance(t)
         for j=1:size(Pbs,1)
             Pb=Pbs[j,:]
             #display(Pb)
-            print("\nPb: at ",Pb," Fractional ")
+            @printf("\nPb %d: at [%f,%f,%f] Fractional ",j,Pb[1],Pb[2],Pb[3])
+
+            sumd=0.0
             for k=1:size(Is,1)
                 I=Is[k,:]
                 #display(I)
 
+                d=minimd(Pb,I,t.cell)
                 #println("Pb: ",Pb," I: ",I," Diff: ",Pb-I, " Norm: ",norm(Pb-I))
-                if (norm(minimd(Pb,I,t.cell))<4) # MAGIC NUMBER; Pb-I distance angstroms
+                if (norm(d)<4) # MAGIC NUMBER; Pb-I distance angstroms
                     #@printf(" %0.3f",norm(minimd(Pb,I,t.cell)))
-                    myd=minimd(Pb,I,t.cell)
-                    @printf("\n d=%0.3f\n\t%0.3f x %0.3f y %0.3f z",norm(myd),myd[1],myd[2],myd[3] )
+                    @printf("\n I %d at \td=%0.3f \t[%0.3f,%0.3f,%0.3f,]",k,norm(d),d[1],d[2],d[3] )
+                    sumd+=d
                 end
             end
+
+            @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f,]",norm(sumd),sumd[1],sumd[2],sumd[3])
+
             println()
         end
     end
