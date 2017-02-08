@@ -34,26 +34,28 @@ end
 # http://dx.doi.org/10.1006/jagm.1996.0062
 # But these slides (see page 17) are fairly understandable:
 # https://people.orie.cornell.edu/miketodd/ublndeta.pdf
+#    - I use variable names as in the above.
 #
 # Cumby's Python implementation seems heavily influenced by Nina Moshtagh's Matlab impelementation:
 # https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosing-ellipsoid
 # https://doi.org/10.1.1.116.7691
-function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
-    println("minimumVolumeEllipsoid( $points, MaxCycles=$MaxCycles")
-
+#    - this Moshtagh's implementation was used most, as it was well documented & the Matlab syntax is very close to Julia
+function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
+    # N - number of points; D - dimension of problem, by inspection of point cloud
     (N,D)=size(points)
 
-    X=Array{Float64}(points)
+    X=Array{Float64}(points) # Forces into Float64 repr (from Any)
     X=hcat(X,ones(N))' # Lift D-dimension vectors into a higher dimensional space; i.e. pad each D-dimension tuple with 1.0
     # And then transpose to match the expected ordering for the linear algebra below
-    println("Padded set of vectors lifted into higher dimension (X): ")
-    display(X)
+    if verbose
+        println("Padded set of vectors lifted into higher dimension (X): ")
+        display(X)
+    end
 
     err = 1e7
     u = zeros(N).+(1/N) # Starts with u=eye(N)/N ; the uniform distribution
-    display(u)
 
-    count=0
+    count=1
 
     while err>tolerance
         V=X*(diagm(u)*X')
@@ -62,47 +64,67 @@ function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
         #display(M)
 
 		(maximum,j)=findmax(M)
-        println("indmax(M)=$j, maximum=M[j]=$maximum")
-
         delta = (maximum - D - 1) / ((D + 1) * (maximum - 1))
-        println("Delta: $delta (should be >0)")
+        
         new_u = (1.0 - delta) * u
         new_u[j] += delta
-        #display(new_u)
         err = norm(new_u - u)
-        println("Err: $err")
-        println("Loops: $count")
-        
+         
         count=count+1
 		u=new_u
+
+        if verbose
+            println("indmax(M)=$j, maximum=M[j]=$maximum")
+            println("Delta: $delta (should be >0)")
+            println("Err: $err")
+            println("Loops: $count")
+        end 
     end
 
     println("CONVERGED TO MINIMUM VOLUME")
-	# centre of the ellipse 
+	
+# %%%%%%%%%%%%%%%%%%% Computing the Ellipse parameters%%%%%%%%%%%%%%%%%%%%%%
+# % Finds the ellipse equation in the 'center form': 
+# % (x-c)' * A * (x-c) = 1
+# % It computes a dxd matrix 'A' and a d dimensional vector 'c' as the center
+# % of the ellipse. 
     P=points'
     U=diagm(u)
 
 	centre = P*u
-    println("Centre of ellipse: $centre")
-	# the A matrix for the ellipse
 	A = 1/D * inv(P*U*P' - (P*u)*(P*u)')
-    println("The 'A' matrix for ellipse, centre-form (x-c)'*A*(x-c)=1:")
-    display(A)
-	# Get the values we'd like to return
-    println("SVD decomposition, svd(A):")
 	U, s, rotation = svd(A)
-	
-    println("U:") 
-    display(U)
-    println("\nSigma:")
-    display(s)
-    println("\nRotation matrix:")
-    display(rotation)
+
+    if verbose
+        println("Centre of ellipse: $centre")
+        println("The 'A' matrix for ellipse, centre-form (x-c)'*A*(x-c)=1:")
+        display(A)
+        println("\nSVD decomposition, svd(A):")
+
+        println("U:") 
+        display(U)
+        println("\nSigma:")
+        display(s)
+        println("\nRotation matrix:")
+        display(rotation)
+    end
 
     radii = 1.0./sqrt(s)
-    println("\nradii: $radii")
 
-    adadslkjdsalk
+    vol=4/3*pi*prod(radii)
+    sphereradius=prod(radii)^(1/3)
+    
+    if verbose
+        println("\nradii: $radii")
+        println("Volume ellipsoid: $vol Equivalent Sphere radius: $sphereradius")
+    end
+
+    # Ellipsoid shape measure r3/r2 - r2/r1
+    # Nb: As haven't crosschecked SVD definition of radii + comparison to numpy, could be back to front here
+    shapeparam=radii[3]/radii[2] - radii[2]/radii[1]
+    println("Ellipsoid shape measure r3/r2 - r2/r1 (Care! definitons.) $shapeparam")
+
+    adadslkjdsalk # Break point! Unrecognised keyword halts the process.
 end
 
 "iterate over frames, calculate distnaces between Pb and I. Uses minimd PBCs!"
