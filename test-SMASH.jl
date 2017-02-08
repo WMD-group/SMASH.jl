@@ -25,6 +25,51 @@ function minimd(a, b, unitcell; verbose::Bool=false)
     d # returns in units of the unitcell; i.e. Angstrom
 end
 
+# This method from 
+# In particular, reading J.Cumby's source code for PIEFACE:
+# https://github.com/jcumby/PIEFACE/blob/372b6ff6166e4996d86084a3116a8b606c25acfa/pieface/ellipsoid.py#L54-L71
+# Nb: Python/Numpy has crazy definiton of dotproduct = matrix multiplication. 8-[
+#
+# Khachiyan 1996 is pretty impenetrable:
+# http://dx.doi.org/10.1006/jagm.1996.0062
+# But these slides (see page 17) are fairly understandable:
+# https://people.orie.cornell.edu/miketodd/ublndeta.pdf
+function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
+    println("minimumVolumeEllipsoid( $points, MaxCycles=$MaxCycles")
+
+    N=6 #hard coded for now
+    D=2 # Number of dimensions? seems to affect step size; might be leading to numerical instability and solution collapse
+
+    Q=Array{Float64}(points)
+    Q=hcat(Q,ones(Q)) # I don#t really understand what this is doing - padding Q with '1.0's
+    println("Q: ")
+    display(Q)
+
+    err = 1.0 + tolerance
+    u = zeros(N).+(1/N)
+    display(u)
+
+    while err>tolerance
+        V=Q*(diagm(u)*Q')
+        display(V)
+        M=diag(Q'*(inv(V)*Q))
+        display(M)
+
+		j=indmax(M)
+        maximum = M[j]
+        println("\nindmax(M)=$j, maximum=M[j]=$maximum")
+
+        step_size = (maximum - D - 1) / ((D + 1) * (maximum - 1))
+        new_u = (1.0 - step_size) * u
+        new_u[j] += step_size
+        display(new_u)
+        err = norm(new_u - u)
+        println("Err: $err")
+
+		u=new_u
+    end
+
+end
 
 "iterate over frames, calculate distnaces between Pb and I. Uses minimd PBCs!"
 function PbIdistance(t)
@@ -41,6 +86,8 @@ function PbIdistance(t)
 #            @printf("\nPb %d: at [%f,%f,%f] Fractional ",j,Pb[1],Pb[2],Pb[3])
 
             sumd=0.0
+            octahedrapoints=Matrix(0,3)
+
             for k=1:size(Is,1)
                 I=Is[k,:]
                 #display(I)
@@ -50,9 +97,12 @@ function PbIdistance(t)
                 if (norm(d)<4) # MAGIC NUMBER; Pb-I distance angstroms
                     #@printf(" %0.3f",norm(minimd(Pb,I,t.cell)))
 #                    @printf("\n I %d at \td=%0.3f \t[%0.3f,%0.3f,%0.3f,]",k,norm(d),d[1],d[2],d[3] )
+                    octahedrapoints=[octahedrapoints; d']
                     sumd+=d
                 end
             end
+
+            minimumVolumeEllipsoid(octahedrapoints)
 
             @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f]",norm(sumd),sumd[1],sumd[2],sumd[3])
             grandsum+=sumd
@@ -65,3 +115,5 @@ function PbIdistance(t)
 end
 
 PbIdistance(t)
+
+
