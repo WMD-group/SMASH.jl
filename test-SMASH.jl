@@ -45,32 +45,36 @@ function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
     D=3 # Number of dimensions? seems to affect step size; might be leading to numerical instability and solution collapse
 
     X=Array{Float64}(points)
-    X=hcat(X,ones(X)) # I don't really understand what this is doing - padding Q with '1.0's
-    println("X: ")
+    X=hcat(X,ones(N))' # Lift D-dimension vectors into a higher dimensional space; i.e. pad each D-dimension tuple with 1.0
+    # And then transpose to match the expected ordering for the linear algebra below
+    println("Padded set of vectors lifted into higher dimension (X): ")
     display(X)
 
     err = 1e7
-    u = zeros(N).+(1/N)
+    u = zeros(N).+(1/N) # Starts with u=eye(N)/N ; the uniform distribution
     display(u)
+
+    count=0
 
     while err>tolerance
         V=X*(diagm(u)*X')
-        display(V)
+        #display(V)
         M=diag(X'*(inv(V)*X))
-        display(M)
+        #display(M)
 
-		j=indmax(M)
-        maximum = M[j]
-        println("\nindmax(M)=$j, maximum=M[j]=$maximum")
+		(maximum,j)=findmax(M)
+        println("indmax(M)=$j, maximum=M[j]=$maximum")
 
         delta = (maximum - D - 1) / ((D + 1) * (maximum - 1))
-        println("\nDelta: $delta (should be >0)")
+        println("Delta: $delta (should be >0)")
         new_u = (1.0 - delta) * u
         new_u[j] += delta
-        display(new_u)
+        #display(new_u)
         err = norm(new_u - u)
         println("Err: $err")
-
+        println("Loops: $count")
+        
+        count=count+1
 		u=new_u
     end
 
