@@ -41,8 +41,7 @@ end
 function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
     println("minimumVolumeEllipsoid( $points, MaxCycles=$MaxCycles")
 
-    N=6 #hard coded for now
-    D=3 # Number of dimensions? seems to affect step size; might be leading to numerical instability and solution collapse
+    (N,D)=size(points)
 
     X=Array{Float64}(points)
     X=hcat(X,ones(N))' # Lift D-dimension vectors into a higher dimensional space; i.e. pad each D-dimension tuple with 1.0
@@ -78,6 +77,32 @@ function minimumVolumeEllipsoid(points; MaxCycles=20, tolerance=1e-6)
 		u=new_u
     end
 
+    println("CONVERGED TO MINIMUM VOLUME")
+	# centre of the ellipse 
+    P=points'
+    U=diagm(u)
+
+	centre = P*u
+    println("Centre of ellipse: $centre")
+	# the A matrix for the ellipse
+	A = 1/D * inv(P*U*P' - (P*u)*(P*u)')
+    println("The 'A' matrix for ellipse, centre-form (x-c)'*A*(x-c)=1:")
+    display(A)
+	# Get the values we'd like to return
+    println("SVD decomposition, svd(A):")
+	U, s, rotation = svd(A)
+	
+    println("U:") 
+    display(U)
+    println("\nSigma:")
+    display(s)
+    println("\nRotation matrix:")
+    display(rotation)
+
+    radii = 1.0./sqrt(s)
+    println("\nradii: $radii")
+
+    adadslkjdsalk
 end
 
 "iterate over frames, calculate distnaces between Pb and I. Uses minimd PBCs!"
