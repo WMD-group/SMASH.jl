@@ -81,7 +81,9 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         end 
     end
 
-    println("CONVERGED TO MINIMUM VOLUME")
+    if verbose
+        println("CONVERGED TO MINIMUM VOLUME")
+    end
 	
 # %%%%%%%%%%%%%%%%%%% Computing the Ellipse parameters%%%%%%%%%%%%%%%%%%%%%%
 # % Finds the ellipse equation in the 'center form': 
@@ -114,17 +116,18 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
     vol=4/3*pi*prod(radii)
     sphereradius=prod(radii)^(1/3)
     
-    if verbose
-        println("\nradii: $radii")
-        println("Volume ellipsoid: $vol Equivalent Sphere radius: $sphereradius")
-    end
-
     # Ellipsoid shape measure r3/r2 - r2/r1
     # Nb: As haven't crosschecked SVD definition of radii + comparison to numpy, could be back to front here
     shapeparam=radii[3]/radii[2] - radii[2]/radii[1]
-    println("Ellipsoid shape measure r3/r2 - r2/r1 (Care! definitons.) $shapeparam")
 
-    adadslkjdsalk # Break point! Unrecognised keyword halts the process.
+    if verbose
+        println("\nradii: $radii")
+        println("Volume ellipsoid: $vol Equivalent Sphere radius: $sphereradius")
+        println("Ellipsoid shape measure r3/r2 - r2/r1 (Care! definitons.) $shapeparam")
+    end
+
+    #adadslkjdsalk # Break point! Unrecognised keyword halts the process.
+    return(shapeparam)
 end
 
 "iterate over frames, calculate distnaces between Pb and I. Uses minimd PBCs!"
@@ -158,7 +161,8 @@ function PbIdistance(t)
                 end
             end
 
-            minimumVolumeEllipsoid(octahedrapoints)
+            shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
+            @printf("Minimum volume ellipsoid shape param: %f \n",shapeparam)
 
             @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f]",norm(sumd),sumd[1],sumd[2],sumd[3])
             grandsum+=sumd
