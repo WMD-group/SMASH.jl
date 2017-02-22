@@ -25,21 +25,30 @@ function minimd(a, b, unitcell; verbose::Bool=false)
     d # returns in units of the unitcell; i.e. Angstrom
 end
 
-# This method from 
-# In particular, reading J.Cumby's source code for PIEFACE:
-# https://github.com/jcumby/PIEFACE/blob/372b6ff6166e4996d86084a3116a8b606c25acfa/pieface/ellipsoid.py#L54-L71
-# Nb: Python/Numpy has crazy definiton of dotproduct = matrix multiplication. 8-[
-#
-# Khachiyan 1996 is pretty impenetrable:
-# http://dx.doi.org/10.1006/jagm.1996.0062
-# But these slides (see page 17) are fairly understandable:
-# https://people.orie.cornell.edu/miketodd/ublndeta.pdf
-#    - I use variable names as in the above.
-#
-# Cumby's Python implementation seems heavily influenced by Nina Moshtagh's Matlab impelementation:
-# https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosing-ellipsoid
-# https://doi.org/10.1.1.116.7691
-#    - this Moshtagh's implementation was used most, as it was well documented & the Matlab syntax is very close to Julia
+"""
+ minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
+
+Calculates the minimum volume ellipsoid for the submitted point cloud.
+Dimension of problem and Number of points discovered by inspection of
+point cloud.
+
+This method uses the Khachiyan algorithm, solving the dual problem in N+1 dimensions.
+
+Khachiyan 1996 is pretty impenetrable:
+http://dx.doi.org/10.1006/jagm.1996.0062
+But these slides (see page 17) are fairly understandable:
+https://people.orie.cornell.edu/miketodd/ublndeta.pdf
+   - here I use variable names as in the above talk.
+
+It was implemented with considerable assistance by reading J.Cumby's source code for PIEFACE:
+https://github.com/jcumby/PIEFACE/blob/372b6ff6166e4996d86084a3116a8b606c25acfa/pieface/ellipsoid.py#L54-L71
+Nb: Python/Numpy has crazy definiton of dotproduct = matrix multiplication. 8-[
+
+Cumby's Python implementation seems heavily influenced by Nina Moshtagh's Matlab implementation:
+https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosing-ellipsoid
+https://doi.org/10.1.1.116.7691
+   - this implementation follows Moshtagh closely, as the code is well documented & the Matlab syntax is very close to Julia.
+"""
 function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
     # N - number of points; D - dimension of problem, by inspection of point cloud
     (N,D)=size(points)
@@ -85,6 +94,7 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         println("CONVERGED TO MINIMUM VOLUME")
     end
 	
+# Comment from Moshtagh's code:
 # %%%%%%%%%%%%%%%%%%% Computing the Ellipse parameters%%%%%%%%%%%%%%%%%%%%%%
 # % Finds the ellipse equation in the 'center form': 
 # % (x-c)' * A * (x-c) = 1
@@ -126,7 +136,6 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         println("Ellipsoid shape measure r3/r2 - r2/r1 (Care! definitons.) $shapeparam")
     end
 
-    #adadslkjdsalk # Break point! Unrecognised keyword halts the process.
     return(shapeparam)
 end
 
@@ -163,8 +172,8 @@ function PbIdistance(t)
 
             shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
             @printf("Minimum volume ellipsoid shape param: %f \n",shapeparam)
+            @printf("Pb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] \n",norm(sumd),sumd[1],sumd[2],sumd[3])
 
-            @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f]",norm(sumd),sumd[1],sumd[2],sumd[3])
             grandsum+=sumd
             octahedra+=1
             #println()
