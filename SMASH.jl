@@ -36,7 +36,9 @@ function readnlines(f,n)
     local lines=""
     local i=1
     for i=1:n
-        lines=lines*readline(f)
+        # ugly version-dep code! Julia>=0.6 chomps newlines in input stream
+        if VERSION >= v"0.6" lines=lines*readline(f,chomp=false) end
+        if VERSION < v"0.6" lines=lines*readline(f)  end
     end
     return (lines)
 end
@@ -74,6 +76,7 @@ function read_XDATCAR(f::IOStream)
     atomcrossref=readmatrix(f,2) # Ref to POTCAR; AtomName and #ofatoms
 #   C     N     H     Pb    I
 #   1     1     6     1     3
+    println("atomcrossref: ",atomcrossref)
 
     t.natoms=Int(sum(atomcrossref[2,1:end])) #Total atoms in supercell
 

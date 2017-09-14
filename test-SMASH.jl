@@ -47,7 +47,7 @@ Nb: Python/Numpy has crazy definiton of dotproduct = matrix multiplication. 8-[
 Cumby's Python implementation seems heavily influenced by Nina Moshtagh's Matlab implementation:
 https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosing-ellipsoid
 https://doi.org/10.1.1.116.7691
-   - this implementation follows Moshtagh closely, as the code is well documented & the Matlab syntax is very close to Julia.
+   - My implementation follows Moshtagh closely, as I find the code  well documented & the Matlab syntax is very close to Julia.
 """
 function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
     # N - number of points; D - dimension of problem, by inspection of point cloud
@@ -139,7 +139,7 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
     return(shapeparam)
 end
 
-"iterate over frames, calculate distnaces between Pb and I. Uses minimd PBCs!"
+"Iterate over frames, calculate distances between Pb and I. Uses minimd PBCs!"
 function PbIdistance(t)
     grandsum=0.0
     octahedra=0
