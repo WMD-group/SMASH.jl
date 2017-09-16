@@ -118,7 +118,7 @@ function minimd(a, b, unitcell; verbose::Bool=false)
 
     # Rewrote in a more sane order, via short note of W.Smith; and some googling
     d=b-a # b and a are fractional
-    d=d-round(d) # Minimum image convention in fractional space
+    d=d-round.(d) # Minimum image convention in fractional space
     d=unitcell*d # Project back to real space; i.e. Angstrom
     if verbose
         display(d)
@@ -150,7 +150,7 @@ https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosin
 https://doi.org/10.1.1.116.7691
    - My implementation follows Moshtagh closely, as I find the code  well documented & the Matlab syntax is very close to Julia.
 """
-function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
+function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true, veryverbose::Bool=false)
     # N - number of points; D - dimension of problem, by inspection of point cloud
     (N,D)=size(points)
 
@@ -181,9 +181,9 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         err = norm(new_u - u)
 
         count=count+1
-                u=new_u
+        u=new_u
 
-        if verbose
+        if veryverbose
             println("indmax(M)=$j, maximum=M[j]=$maximum")
             println("Delta: $delta (should be >0)")
             println("Err: $err")
@@ -204,9 +204,9 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
     P=points'
     U=diagm(u)
 
-        centre = P*u
-        A = 1/D * inv(P*U*P' - (P*u)*(P*u)')
-        U, s, rotation = svd(A)
+    centre = P*u
+    A = 1/D * inv(P*U*P' - (P*u)*(P*u)')
+    U, s, rotation = svd(A)
 
     if verbose
         println("Centre of ellipse: $centre")
@@ -222,7 +222,7 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         display(rotation)
     end
 
-    radii = 1.0./sqrt(s)
+    radii = 1.0./sqrt.(s)
 
     vol=4/3*pi*prod(radii)
     sphereradius=prod(radii)^(1/3)
@@ -237,7 +237,7 @@ function minimumVolumeEllipsoid(points; tolerance=1e-3, verbose::Bool=true)
         println("Ellipsoid shape measure r3/r2 - r2/r1 (Care! definitons.) $shapeparam")
     end
 
-    return(shapeparam)
+    return centre,A,shapeparam
 end
 
 # Print SMASH titles...

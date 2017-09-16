@@ -11,6 +11,7 @@ function PbIdistance(t)
     octahedra=0
 
     for i in 1:t.nframes
+        @printf("Frame: %d\n",i)
         Pbs=t.frames[i][t.atomlookup .=="Pb",:]
         Is=t.frames[i][t.atomlookup .=="I",:]
 
@@ -36,8 +37,13 @@ function PbIdistance(t)
                 end
             end
 
-            shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
-            @printf("Minimum volume ellipsoid shape param: %f \n",shapeparam)
+            centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
+            @printf("Minimum volume ellipsoid. Shapeparam: %f \n",shapeparam)
+            
+            print("centre: $centre Pb: $Pb norm(centre-Pb):")
+            show(norm(centre-Pb))
+            println()
+
             @printf("Pb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] \n",norm(sumd),sumd[1],sumd[2],sumd[3])
 
             grandsum+=sumd
