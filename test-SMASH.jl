@@ -2,7 +2,8 @@ push!(LOAD_PATH,"./") # Temporary versions of modules in PWD
 using SMASH
 
 # Test routines...
-f=open("testmd2-nonselective_XDATCAR","r")
+#f=open("testmd2-nonselective_XDATCAR","r")
+f=open("POSCAR-MAPbI-2x2x2-Cubic","r") # Seems to work on Vasp5 POSCARs a.OK
 t=SMASH.read_XDATCAR(f) #Returns type XDATCAR.Trajcetory
 
 "Iterate over frames, calculate distances between Pb and I. Uses minimd PBCs!"
@@ -11,14 +12,14 @@ function PbIdistance(t)
     octahedra=0
 
     for i in 1:t.nframes
-        @printf("Frame: %d\n",i)
+        @printf("\nFrame: %d . Hunting octahedra...",i)
         Pbs=t.frames[i][t.atomlookup .=="Pb",:]
         Is=t.frames[i][t.atomlookup .=="I",:]
 
         for j=1:size(Pbs,1)
             Pb=Pbs[j,:]
             #display(Pb)
-#            @printf("\nPb %d: at [%f,%f,%f] Fractional ",j,Pb[1],Pb[2],Pb[3])
+            @printf("\nPb %d: at [%f,%f,%f] Fractional. Iodine: ",j,Pb[1],Pb[2],Pb[3])
 
             sumd=0.0
             octahedrapoints=Matrix(0,3)
@@ -34,21 +35,20 @@ function PbIdistance(t)
 #                    @printf("\n I %d at \td=%0.3f \t[%0.3f,%0.3f,%0.3f,]",k,norm(d),d[1],d[2],d[3] )
                     octahedrapoints=[octahedrapoints; d']
                     sumd+=d
+                    @printf(".");
                 end
             end
 
             centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
-            @printf("Minimum volume ellipsoid. Shapeparam: %f \n",shapeparam)
+            @printf("\nMinimum volume ellipsoid. Shapeparam: %f ",shapeparam)
             
             print("centre: $centre Pb: $Pb norm(centre-Pb):")
             show(norm(centre-Pb))
-            println()
 
-            @printf("Pb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] \n",norm(sumd),sumd[1],sumd[2],sumd[3])
+            @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] ",norm(sumd),sumd[1],sumd[2],sumd[3])
 
             grandsum+=sumd
             octahedra+=1
-            #println()
         end
     end
     println("Grand sum: ",grandsum)
