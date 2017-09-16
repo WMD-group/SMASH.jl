@@ -11,12 +11,12 @@ function PbIdistance(t)
     grandsum=0.0
     octahedra=0
 
-    for i in 1:t.nframes
+    for i in 1:t.nframes # Iterate over all frames of trajectory
         @printf("\nFrame: %d . Hunting octahedra...",i)
         Pbs=t.frames[i][t.atomlookup .=="Pb",:]
         Is=t.frames[i][t.atomlookup .=="I",:]
 
-        for j=1:size(Pbs,1)
+        for j=1:size(Pbs,1) # Iterate over Pb atoms
             Pb=Pbs[j,:]
             #display(Pb)
             @printf("\nPb %d: at [%f,%f,%f] Fractional. Iodine: ",j,Pb[1],Pb[2],Pb[3])
@@ -24,7 +24,7 @@ function PbIdistance(t)
             sumd=0.0
             octahedrapoints=Matrix(0,3)
 
-            for k=1:size(Is,1)
+            for k=1:size(Is,1) # Iterate over I, using minimmum image convention distance to find iodide
                 I=Is[k,:]
                 #display(I)
 
@@ -39,6 +39,7 @@ function PbIdistance(t)
                 end
             end
 
+            # OK, now we have a set of Iodines which make up the octahedra around this Pb site
             centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
             @printf("\nMinimum volume ellipsoid. Shapeparam: %f ",shapeparam)
             
