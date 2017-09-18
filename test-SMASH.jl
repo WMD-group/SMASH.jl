@@ -28,6 +28,7 @@ function PbIdistance(t; verbose::Bool=false )
             octahedrapoints=Matrix(0,3)
 
             @printf("\nIodine: ")
+            Icount=0
             for k=1:size(Is,1) # Iterate over I, using minimmum image convention distance to find iodide
                 I=Is[k,:]
                 #display(I)
@@ -39,6 +40,8 @@ function PbIdistance(t; verbose::Bool=false )
 #                    @printf("\n I %d at \td=%0.3f \t[%0.3f,%0.3f,%0.3f,]",k,norm(d),d[1],d[2],d[3] )
                     octahedrapoints=[octahedrapoints; d']
                     sumd+=d
+
+                    Icount=Icount+1
                     @printf(".");
                     if (verbose) print("\n",d) end # verbose coords, of each found Iodine
                 end
@@ -46,9 +49,13 @@ function PbIdistance(t; verbose::Bool=false )
 
             # OK, now we have a set of Iodines which make up the octahedra around this Pb site
             # Everything is referenced to Pb at {0,0,0}, in Cartesian coordinates
-            centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
-            @printf("\nMinimum volume ellipsoid. Shapeparam: %0.4f Centre: [%0.3f,%0.3f,%0.3f], \td=%0.5f",
-                shapeparam,centre[1],centre[2],centre[3],norm(centre))
+            if (Icount==6) # if we've found 6 members of our octahedra
+                centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
+                @printf("\nMinimum volume ellipsoid. Shapeparam: %0.4f Centre: [%0.3f,%0.3f,%0.3f], \td=%0.5f",
+                    shapeparam,centre[1],centre[2],centre[3],norm(centre))
+            else
+                @printf("\nEeek! %d Iodine does not make an octahedra. Cowardly refusing to calculate an ellipsoid.",Icount)
+            end
 
             @printf("\n(Pb)-I6 'sumd' vector: \t[%0.3f,%0.3f,%0.3f] \td=%0.5f",
                 sumd[1]/6,sumd[2]/6,sumd[3]/6,norm(sumd/6))
