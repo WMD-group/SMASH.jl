@@ -12,14 +12,14 @@ function PbIdistance(t)
     octahedra=0
 
     for i in 1:t.nframes # Iterate over all frames of trajectory
-        @printf("\nFrame: %d . Hunting octahedra...",i)
+        @printf("\nFrame: %d . Hunting for octahedra...",i)
         Pbs=t.frames[i][t.atomlookup .=="Pb",:]
         Is=t.frames[i][t.atomlookup .=="I",:]
 
         for j=1:size(Pbs,1) # Iterate over Pb atoms
             Pb=Pbs[j,:]
             #display(Pb)
-            @printf("\nPb %d: at [%f,%f,%f] Fractional. Iodine: ",j,Pb[1],Pb[2],Pb[3])
+            @printf("\n\nPb %d: at [%f,%f,%f] Fractional. Iodine: ",j,Pb[1],Pb[2],Pb[3])
 
             sumd=0.0
             octahedrapoints=Matrix(0,3)
@@ -36,6 +36,7 @@ function PbIdistance(t)
                     octahedrapoints=[octahedrapoints; d']
                     sumd+=d
                     @printf(".");
+                    println(d) # verbose coords, of each found Iodine
                 end
             end
 
@@ -43,10 +44,12 @@ function PbIdistance(t)
             centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
             @printf("\nMinimum volume ellipsoid. Shapeparam: %f ",shapeparam)
             
-            print("centre: $centre Pb: $Pb norm(centre-Pb):")
-            show(norm(centre-Pb))
+            print("centre: $centre Pb: $Pb norm(centre-Pb): ",
+                norm(centre-Pb)," offset: ",centre-Pb)
 
-            @printf("\nPb-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] ",norm(sumd),sumd[1],sumd[2],sumd[3])
+            @printf("\n(Pb)-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] ",
+                norm(sumd),sumd[1],sumd[2],sumd[3])
+            @printf("\n(Pb)-I6 CoM: [%0.3f,%0.3f,%0.3f] ",sumd[1]/6,sumd[2]/6,sumd[3]/6)
 
             grandsum+=sumd
             octahedra+=1
