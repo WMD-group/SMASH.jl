@@ -57,9 +57,13 @@ function PbIdistance(t; verbose::Bool=false )
                 @printf("\nEeek! %d Iodine does not make an octahedra. Cowardly refusing to calculate an ellipsoid.",Icount)
             end
 
+            meand=sumd/6;
             @printf("\n(Pb)-I6 'sumd' vector: \t[%0.3f,%0.3f,%0.3f] \td=%0.5f",
-                sumd[1]/6,sumd[2]/6,sumd[3]/6,norm(sumd/6))
+                meand[1],meand[2],meand[3],norm(meand))
             #@printf("\n(Pb)-I6 CoM: [%0.3f,%0.3f,%0.3f] ",sumd[1]/6,sumd[2]/6,sumd[3]/6)
+
+            @printf("\ndot(sumd,ellipsoidcentre)/norm(sumd)^2 = %f ",
+                dot(meand,centre)/norm(meand)^2)
 
             grandsum+=sumd
             octahedra+=1
