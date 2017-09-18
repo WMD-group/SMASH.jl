@@ -62,7 +62,7 @@ readmatrix(f, nlines) = readdlm(IOBuffer(readnlines(f,nlines)))
 #   0.43568603  0.50228894  0.53798652
 #   0.03842720  0.49679247  0.48113604
 
-function read_XDATCAR(f::IOStream) 
+function read_XDATCAR(f::IOStream; supercell::Bool=true) 
     println("Reading trajectory from ")
     display(f)
     println()
@@ -98,11 +98,44 @@ function read_XDATCAR(f::IOStream)
     while !eof(f) 
         t.nframes=t.nframes+1
 
-        stepsizeline=readline(f)
-        push!(t.frames,readmatrix(f,t.natoms))   # Fractional coordinates!
-#        print(frame)
+        stepsizeline=readline(f) # Just dropped
+        coords=readmatrix(f,t.natoms) # natoms set of fractinal {a,b,c} coords
+       
+        show(coords)
+        println("<- coords")
+
+        if (supercell)
+            supercellcoords=coords
+            for cell in [1 0 0; 0 1 0; 0 0 1; 0 1 1; 1 0 1; 1 1 0; 1 1 1]
+                boosted=coords .+ cell
+#                show(boosted)
+                supercellcoords=vcat(supercellcoords,boosted)
+            end
+            
+            show(supercellcoords)
+            print("<- supercellcoords <- length(")
+            show(length(supercellcoords)/3)
+            println(")")
+
+            push!(t.frames,supercellcoords)
+        else
+            push!(t.frames,coords)   # Fractional coordinates!
+        end
+#       print(frame)
     end
-    
+   
+    if (supercell)
+        lu=t.atomlookup
+        t.atomlookup=vcat(lu,lu,lu,lu,lu,lu,lu,lu)
+
+        show(t.atomlookup)
+        println("<- t.atomlookup")
+        show(length(t.atomlookup))
+
+        t.natoms=8*t.natoms
+        t.cell=2.*t.cell
+    end
+
     println("Trajectory read, containing ",t.nframes," frames")
 
     return t

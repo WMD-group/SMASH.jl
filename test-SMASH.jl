@@ -3,7 +3,8 @@ using SMASH
 
 # Test routines...
 #f=open("testmd2-nonselective_XDATCAR","r")
-f=open("POSCAR-MAPbI-2x2x2-Cubic","r") # Seems to work on Vasp5 POSCARs a.OK
+f=open("POSCAR-MAPI-Cs") # single unit cell CsPbI3 test; symmetry broken
+#f=open("POSCAR-MAPbI-2x2x2-Cubic","r") # Seems to work on Vasp5 POSCARs a.OK
 t=SMASH.read_XDATCAR(f) #Returns type XDATCAR.Trajcetory
 
 "Iterate over frames, calculate distances between Pb and I. Uses minimd PBCs!"
