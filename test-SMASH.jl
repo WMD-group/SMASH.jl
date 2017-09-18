@@ -7,7 +7,7 @@ f=open("POSCAR-MAPbI-2x2x2-Cubic","r") # Seems to work on Vasp5 POSCARs a.OK
 t=SMASH.read_XDATCAR(f) #Returns type XDATCAR.Trajcetory
 
 "Iterate over frames, calculate distances between Pb and I. Uses minimd PBCs!"
-function PbIdistance(t)
+function PbIdistance(t; verbose::Bool=false )
     grandsum=0.0
     octahedra=0
 
@@ -19,11 +19,15 @@ function PbIdistance(t)
         for j=1:size(Pbs,1) # Iterate over Pb atoms
             Pb=Pbs[j,:]
             #display(Pb)
-            @printf("\n\nPb %d: at [%f,%f,%f] Fractional. Iodine: ",j,Pb[1],Pb[2],Pb[3])
+            @printf("\n\nPb %d: at [%f,%f,%f] Fractional",j,Pb[1],Pb[2],Pb[3])
+            PbCartesian=fractionalToCartesian(Pb,t.cell)
+            @printf(", [%0.3f,%0.3f,%0.3f] Cartesian.",
+                PbCartesian[1],PbCartesian[2],PbCartesian[3])
 
             sumd=0.0
             octahedrapoints=Matrix(0,3)
 
+            @printf("\nIodine: ")
             for k=1:size(Is,1) # Iterate over I, using minimmum image convention distance to find iodide
                 I=Is[k,:]
                 #display(I)
@@ -36,29 +40,28 @@ function PbIdistance(t)
                     octahedrapoints=[octahedrapoints; d']
                     sumd+=d
                     @printf(".");
-                    println(d) # verbose coords, of each found Iodine
+                    if (verbose) print("\n",d) end # verbose coords, of each found Iodine
                 end
             end
 
             # OK, now we have a set of Iodines which make up the octahedra around this Pb site
+            # Everything is referenced to Pb at {0,0,0}, in Cartesian coordinates
             centre,A,shapeparam=minimumVolumeEllipsoid(octahedrapoints,verbose=false)
-            @printf("\nMinimum volume ellipsoid. Shapeparam: %f ",shapeparam)
-            
-            print("centre: $centre Pb: $Pb norm(centre-Pb): ",
-                norm(centre-Pb)," offset: ",centre-Pb)
+            @printf("\nMinimum volume ellipsoid. Shapeparam: %0.4f Centre: [%0.3f,%0.3f,%0.3f], \td=%0.5f",
+                shapeparam,centre[1],centre[2],centre[3],norm(centre))
 
-            @printf("\n(Pb)-I6 'sumd' vector: \td=%f \t[%0.3f,%0.3f,%0.3f] ",
-                norm(sumd),sumd[1],sumd[2],sumd[3])
-            @printf("\n(Pb)-I6 CoM: [%0.3f,%0.3f,%0.3f] ",sumd[1]/6,sumd[2]/6,sumd[3]/6)
+            @printf("\n(Pb)-I6 'sumd' vector: \t[%0.3f,%0.3f,%0.3f] \td=%0.5f",
+                sumd[1]/6,sumd[2]/6,sumd[3]/6,norm(sumd/6))
+            #@printf("\n(Pb)-I6 CoM: [%0.3f,%0.3f,%0.3f] ",sumd[1]/6,sumd[2]/6,sumd[3]/6)
 
             grandsum+=sumd
             octahedra+=1
         end
     end
-    println("Grand sum: ",grandsum)
+    println("\nGrand sum: ",grandsum)
     println("Grandsum / number octahedra: ",grandsum/octahedra)
 end
 
-PbIdistance(t)
+PbIdistance(t, verbose=false)
 
 

@@ -8,7 +8,9 @@
 
 module SMASH 
 
-export atomic, Trajectory, minimd, minimumVolumeEllipsoid
+export atomic, Trajectory
+export fractionalToCartesian, minimd # Helper fns for minimum image convention
+export minimumVolumeEllipsoid # New 2017! Minimum volume ellipsoid
 
 atomic=["H", "He", 
 "Li", "Be", "B", "C", "N", "O", "F", "Ne", 
@@ -104,6 +106,13 @@ function read_XDATCAR(f::IOStream)
     println("Trajectory read, containing ",t.nframes," frames")
 
     return t
+end
+
+"fractionToCartesian(a,unitcell)
+
+Fractional to Cartesian coordinates for vector a."
+function fractionalToCartesian(a,unitcell)
+    b=unitcell*a
 end
 
 "minimimum distance image convention; using a unitcell=3x3, with a and b vectors in fractional coords"
